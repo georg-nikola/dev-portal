@@ -2,23 +2,24 @@
 Playwright tests for dev-portal.
 
 Usage:
-  # Against production
+  # Against production (from a machine without Cloudflare WARP)
   python tests/test_dev_portal.py
 
-  # With Cloudflare WARP DNS override
+  # With Cloudflare WARP DNS override (maps prod hostname to Cloudflare IP)
   python tests/test_dev_portal.py --dns-override
 
   # Against local docker-compose stack (docker compose up)
   python tests/test_dev_portal.py --url http://localhost:8080
 
-  # Against a kubectl port-forward
-  #   kubectl port-forward svc/dev-portal 8888:80 -n dev-portal
-  python tests/test_dev_portal.py --url http://localhost:8888
+  # Against a kubectl port-forward with separate API port-forward
+  #   kubectl port-forward svc/dev-portal 18080:80 -n dev-portal &
+  #   kubectl port-forward svc/dev-portal-api 18000:8000 -n dev-portal &
+  python tests/test_dev_portal.py --url http://localhost:18080 --api-url http://localhost:18000
 """
 import argparse
 import sys
 import time
-from playwright.sync_api import sync_playwright, expect
+from playwright.sync_api import sync_playwright, expect, Route
 
 PROD_URL = "https://dev-portal.georg-nikola.com"
 PROD_IP  = "104.21.12.221"   # Cloudflare proxy IP
@@ -30,7 +31,7 @@ _UNIQUE_SVC  = f"test-svc-{int(time.time())}"
 _UNIQUE_SVC2 = f"test-svc2-{int(time.time())}"
 
 
-def run_tests(base_url: str, dns_override: bool = False):
+def run_tests(base_url: str, dns_override: bool = False, api_url: str | None = None):
     results = []
 
     def record(name: str, passed: bool, detail: str = ""):
@@ -48,6 +49,16 @@ def run_tests(base_url: str, dns_override: bool = False):
         browser = p.chromium.launch(headless=True, args=launch_args)
         ctx  = browser.new_context()
         page = ctx.new_page()
+
+        # When testing via kubectl port-forward, intercept /api/* requests and
+        # redirect them to the separately port-forwarded API service.
+        if api_url:
+            def _reroute_api(route: Route):
+                new_url = api_url.rstrip("/") + route.request.url.split("/api", 1)[1]
+                # Reconstruct with /api prefix preserved
+                new_url = api_url.rstrip("/") + "/api" + route.request.url.split("/api", 1)[1]
+                route.continue_(url=new_url)
+            page.route("**/api/**", _reroute_api)
 
         console_errors: list[str] = []
         page.on("console", lambda m: console_errors.append(m.text) if m.type == "error" else None)
@@ -475,15 +486,21 @@ def run_tests(base_url: str, dns_override: bool = False):
 def main():
     parser = argparse.ArgumentParser(description="Dev Portal Playwright tests")
     parser.add_argument("--url", default=PROD_URL, help="Base URL to test against")
+    parser.add_argument("--api-url", default=None,
+                        help="Override API base URL (for port-forward mode). "
+                             "Intercepts /api/* requests and redirects to this host. "
+                             "Example: http://localhost:18000")
     parser.add_argument("--dns-override", action="store_true",
                         help="Override DNS to bypass Cloudflare WARP (uses PROD_IP)")
     args = parser.parse_args()
 
     print(f"\nDev Portal Test Suite")
     print(f"Target: {args.url}")
+    if args.api_url:
+        print(f"API override: {args.api_url}")
     print("=" * 50)
 
-    results = run_tests(args.url, dns_override=args.dns_override)
+    results = run_tests(args.url, dns_override=args.dns_override, api_url=args.api_url)
 
     print("\n" + "=" * 50)
     passed = sum(1 for _, ok in results if ok)

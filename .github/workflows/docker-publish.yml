@@ -8,6 +8,8 @@ on:
       - 'frontend/**'
       - 'backend/**'
       - '.github/workflows/docker-publish.yml'
+    tags:
+      - 'v*.*.*'
 
 env:
   REGISTRY: ghcr.io
