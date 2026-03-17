@@ -1,0 +1,6 @@
+apiVersion: v2
+name: postgresql-dev-portal
+description: PostgreSQL StatefulSet for Dev Portal
+type: application
+version: 1.0.0
+appVersion: "16.13"

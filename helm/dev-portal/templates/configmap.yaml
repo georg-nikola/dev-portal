@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dev-portal-nginx-config
+  namespace: dev-portal
+data:
+  # Stored for reference; the nginx.conf is baked into the Docker image.
+  # If you need to override nginx config without rebuilding, mount this ConfigMap.
+  version: {{ .Values.image.tag | quote }}

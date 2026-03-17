@@ -1,0 +1,31 @@
+---
+# Middleware: strip /api prefix before forwarding to FastAPI
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: dev-portal-strip-api
+  namespace: dev-portal
+spec:
+  stripPrefix:
+    prefixes:
+      - /api
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: dev-portal-api
+  namespace: dev-portal
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`{{ .Values.ingress.host }}`) && PathPrefix(`/api`)
+      kind: Rule
+      middlewares:
+        - name: dev-portal-strip-api
+      services:
+        - name: {{ include "dev-portal-api.fullname" . }}
+          port: {{ .Values.service.port }}
+  tls:
+    certResolver: cloudflare

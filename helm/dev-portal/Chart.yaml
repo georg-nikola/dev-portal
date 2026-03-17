@@ -1,0 +1,6 @@
+apiVersion: v2
+name: dev-portal
+description: Dev Portal frontend (nginx static)
+type: application
+version: 1.0.0
+appVersion: "1.0.0"

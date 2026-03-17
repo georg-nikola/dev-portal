@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "dev-portal.fullname" . }}
+  namespace: dev-portal
+  labels:
+    app: {{ include "dev-portal.name" . }}
+    version: {{ .Values.image.tag | quote }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "dev-portal.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "dev-portal.name" . }}
+        version: {{ .Values.image.tag | quote }}
+    spec:
+      containers:
+        - name: {{ include "dev-portal.name" . }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 80
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false  # nginx needs to write pid/cache
+            runAsNonRoot: false            # nginx master runs as root, workers drop
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 3
+            periodSeconds: 10

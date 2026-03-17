@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: postgresql-dev-portal-netpol
+  namespace: dev-portal
+spec:
+  podSelector:
+    matchLabels:
+      app: postgresql-dev-portal
+  policyTypes:
+    - Ingress
+  ingress:
+    # Only allow traffic from the API pods
+    - from:
+        - podSelector:
+            matchLabels:
+              app: dev-portal-api
+      ports:
+        - protocol: TCP
+          port: 5432

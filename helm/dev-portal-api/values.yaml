@@ -1,0 +1,27 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/georg-nikola/dev-portal-api
+  pullPolicy: IfNotPresent
+  tag: "1.0.0"
+
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 8000
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 250m
+    memory: 256Mi
+
+env:
+  DATABASE_URL: "postgresql+asyncpg://devportal:$(POSTGRES_PASSWORD)@postgresql-dev-portal:5432/devportal"
+
+ingress:
+  host: dev-portal.georg-nikola.com
