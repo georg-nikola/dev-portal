@@ -5,6 +5,7 @@ metadata:
   namespace: dev-portal
 spec:
   entryPoints:
+    - web
     - websecure
   routes:
     - match: Host(`{{ .Values.ingress.host }}`) && PathPrefix(`/api`)
@@ -12,5 +13,3 @@ spec:
       services:
         - name: {{ include "dev-portal-api.fullname" . }}
           port: {{ .Values.service.port }}
-  tls:
-    certResolver: cloudflare
