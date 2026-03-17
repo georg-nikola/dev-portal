@@ -17,3 +17,5 @@ resources:
 
 service:
   port: 5432
+
+tolerations: []

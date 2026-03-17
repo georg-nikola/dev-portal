@@ -17,6 +17,10 @@ spec:
         app: {{ include "dev-portal.name" . }}
         version: {{ .Values.image.tag | quote }}
     spec:
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: {{ include "dev-portal.name" . }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

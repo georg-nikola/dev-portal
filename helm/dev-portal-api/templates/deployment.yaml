@@ -21,6 +21,10 @@ spec:
         runAsNonRoot: true
         runAsUser: 1000
         fsGroup: 1000
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: {{ include "dev-portal-api.name" . }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

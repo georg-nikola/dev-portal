@@ -22,3 +22,5 @@ resources:
 
 ingress:
   host: dev-portal.georg-nikola.com
+
+tolerations: []
