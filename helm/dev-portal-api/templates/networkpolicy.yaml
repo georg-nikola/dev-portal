@@ -1,0 +1,69 @@
+# ── dev-portal-api: allow Traefik ingress ────────────────────────────────
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-traefik-to-api
+  namespace: dev-portal
+spec:
+  podSelector:
+    matchLabels:
+      app: {{ include "dev-portal-api.name" . }}
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: traefik
+      ports:
+        - protocol: TCP
+          port: 8000
+---
+# ── dev-portal-api: allow egress to PostgreSQL ───────────────────────────
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-api-to-db-egress
+  namespace: dev-portal
+spec:
+  podSelector:
+    matchLabels:
+      app: {{ include "dev-portal-api.name" . }}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: postgresql-dev-portal
+      ports:
+        - protocol: TCP
+          port: 5432
+---
+# ── dev-portal-api: allow egress to external status URLs ─────────────────
+# The background health checker pings service status_url endpoints every 60s.
+# Without this policy, those checks would be blocked by default-deny-egress.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-api-external-egress
+  namespace: dev-portal
+spec:
+  podSelector:
+    matchLabels:
+      app: {{ include "dev-portal-api.name" . }}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+      ports:
+        - protocol: TCP
+          port: 443
+        - protocol: TCP
+          port: 80

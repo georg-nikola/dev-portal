@@ -17,10 +17,13 @@ spec:
         app: {{ include "dev-portal-api.name" . }}
         version: {{ .Values.image.tag | quote }}
     spec:
+      automountServiceAccountToken: false
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
         fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
       {{- with .Values.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
@@ -38,7 +41,7 @@ spec:
                   name: postgresql-credentials
                   key: POSTGRES_PASSWORD
             - name: DATABASE_URL
-              value: "postgresql+asyncpg://devportal:$(POSTGRES_PASSWORD)@postgresql-dev-portal:5432/devportal"
+              value: "postgresql+asyncpg://devportal:$(POSTGRES_PASSWORD)@postgresql-dev-portal:5432/devportal?ssl=require"
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           securityContext:
@@ -49,6 +52,8 @@ spec:
             capabilities:
               drop:
                 - ALL
+            seccompProfile:
+              type: RuntimeDefault
           volumeMounts:
             - name: tmp
               mountPath: /tmp

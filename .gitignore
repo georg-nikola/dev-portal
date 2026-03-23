@@ -52,3 +52,6 @@ npm-debug.log*
 *.key
 *.crt
 secrets/
+
+# PostgreSQL TLS certificates (generated locally)
+pg-certs/

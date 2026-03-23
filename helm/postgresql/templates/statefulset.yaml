@@ -16,6 +16,7 @@ spec:
       labels:
         app: postgresql-dev-portal
     spec:
+      automountServiceAccountToken: false
       {{- with .Values.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
@@ -24,6 +25,15 @@ spec:
         - name: postgresql
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - "-c"
+            - "ssl=on"
+            - "-c"
+            - "ssl_cert_file=/var/lib/postgresql/certs/server.crt"
+            - "-c"
+            - "ssl_key_file=/var/lib/postgresql/certs/server.key"
+            - "-c"
+            - "ssl_ca_file=/var/lib/postgresql/certs/ca.crt"
           ports:
             - containerPort: 5432
           env:
@@ -47,6 +57,9 @@ spec:
           volumeMounts:
             - name: postgres-data
               mountPath: /var/lib/postgresql/data
+            - name: pg-tls
+              mountPath: /var/lib/postgresql/certs
+              readOnly: true
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           livenessProbe:
@@ -59,6 +72,11 @@ spec:
               command: ["pg_isready", "-U", "devportal", "-d", "devportal"]
             initialDelaySeconds: 5
             periodSeconds: 10
+      volumes:
+        - name: pg-tls
+          secret:
+            secretName: postgresql-tls
+            defaultMode: 0600
   volumeClaimTemplates:
     - metadata:
         name: postgres-data

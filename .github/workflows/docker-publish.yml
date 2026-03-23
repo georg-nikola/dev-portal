@@ -24,6 +24,7 @@ jobs:
       contents: read
       packages: write
       security-events: write
+      id-token: write
 
     steps:
       - name: Checkout
@@ -51,6 +52,7 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push frontend image
+        id: build-push-frontend
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
@@ -61,7 +63,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Run Trivy vulnerability scan (frontend)
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # v0.35.0
         with:
           image-ref: ${{ env.FRONTEND_IMAGE }}:latest
           format: sarif
@@ -76,6 +78,15 @@ jobs:
           sarif_file: trivy-frontend.sarif
           category: trivy-frontend
 
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3
+
+      - name: Sign frontend image with Cosign
+        env:
+          DIGEST: ${{ steps.build-push-frontend.outputs.digest }}
+        run: |
+          cosign sign --yes ${{ env.FRONTEND_IMAGE }}@${DIGEST}
+
   build-api:
     name: Build & Push API
     runs-on: ubuntu-latest
@@ -83,6 +94,7 @@ jobs:
       contents: read
       packages: write
       security-events: write
+      id-token: write
 
     steps:
       - name: Checkout
@@ -110,6 +122,7 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push API image
+        id: build-push-api
         uses: docker/build-push-action@v5
         with:
           context: ./backend
@@ -120,7 +133,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Run Trivy vulnerability scan (API)
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # v0.35.0
         with:
           image-ref: ${{ env.API_IMAGE }}:latest
           format: sarif
@@ -134,6 +147,15 @@ jobs:
         with:
           sarif_file: trivy-api.sarif
           category: trivy-api
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3
+
+      - name: Sign API image with Cosign
+        env:
+          DIGEST: ${{ steps.build-push-api.outputs.digest }}
+        run: |
+          cosign sign --yes ${{ env.API_IMAGE }}@${DIGEST}
 
   playwright-tests:
     name: Playwright Integration Tests

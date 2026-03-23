@@ -17,6 +17,11 @@ spec:
         app: {{ include "dev-portal.name" . }}
         version: {{ .Values.image.tag | quote }}
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 101
+        seccompProfile:
+          type: RuntimeDefault
       {{- with .Values.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
@@ -26,22 +31,42 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - containerPort: 80
+            - containerPort: 8080
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           securityContext:
+            runAsNonRoot: true
+            runAsUser: 101
             allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: false  # nginx needs to write pid/cache
-            runAsNonRoot: false            # nginx master runs as root, workers drop
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: nginx-cache
+              mountPath: /var/cache/nginx
+            - name: nginx-run
+              mountPath: /var/run
           livenessProbe:
             httpGet:
-              path: /
-              port: 80
+              path: /health
+              port: 8080
             initialDelaySeconds: 5
             periodSeconds: 15
           readinessProbe:
             httpGet:
-              path: /
-              port: 80
+              path: /health
+              port: 8080
             initialDelaySeconds: 3
             periodSeconds: 10
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: nginx-cache
+          emptyDir: {}
+        - name: nginx-run
+          emptyDir: {}

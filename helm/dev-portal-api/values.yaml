@@ -21,7 +21,7 @@ resources:
     memory: 256Mi
 
 env:
-  DATABASE_URL: "postgresql+asyncpg://devportal:$(POSTGRES_PASSWORD)@postgresql-dev-portal:5432/devportal"
+  DATABASE_URL: "postgresql+asyncpg://devportal:$(POSTGRES_PASSWORD)@postgresql-dev-portal:5432/devportal?ssl=require"
 
 ingress:
   host: dev-portal.georg-nikola.com
