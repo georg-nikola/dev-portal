@@ -17,12 +17,20 @@ spec:
         app: postgresql-dev-portal
     spec:
       automountServiceAccountToken: false
-      securityContext:
-        fsGroup: 999
       {{- with .Values.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      initContainers:
+        - name: copy-tls-certs
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          command: ["sh", "-c", "cp /tls-secret/* /tls-certs/ && chown 999:999 /tls-certs/* && chmod 600 /tls-certs/server.key && chmod 644 /tls-certs/server.crt /tls-certs/ca.crt"]
+          volumeMounts:
+            - name: pg-tls
+              mountPath: /tls-secret
+              readOnly: true
+            - name: pg-tls-certs
+              mountPath: /tls-certs
       containers:
         - name: postgresql
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -59,7 +67,7 @@ spec:
           volumeMounts:
             - name: postgres-data
               mountPath: /var/lib/postgresql/data
-            - name: pg-tls
+            - name: pg-tls-certs
               mountPath: /var/lib/postgresql/certs
               readOnly: true
           resources:
@@ -78,7 +86,8 @@ spec:
         - name: pg-tls
           secret:
             secretName: postgresql-tls
-            defaultMode: 0640
+        - name: pg-tls-certs
+          emptyDir: {}
   volumeClaimTemplates:
     - metadata:
         name: postgres-data
