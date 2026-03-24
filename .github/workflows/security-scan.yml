@@ -94,7 +94,7 @@ jobs:
           exit-code: '0'
 
       - name: Upload Trivy IaC SARIF
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: trivy-iac.sarif
@@ -118,7 +118,7 @@ jobs:
         continue-on-error: true
 
       - name: Upload Kubescape SARIF
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: kubescape-results.sarif
