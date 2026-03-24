@@ -18,10 +18,6 @@ spec:
         version: {{ .Values.image.tag | quote }}
     spec:
       automountServiceAccountToken: false
-      securityContext:
-        fsGroup: 101
-        seccompProfile:
-          type: RuntimeDefault
       {{- with .Values.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
@@ -31,42 +27,22 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - containerPort: 8080
+            - containerPort: 80
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           securityContext:
-            runAsNonRoot: true
-            runAsUser: 101
             allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-                - ALL
-            readOnlyRootFilesystem: true
-            seccompProfile:
-              type: RuntimeDefault
-          volumeMounts:
-            - name: tmp
-              mountPath: /tmp
-            - name: nginx-cache
-              mountPath: /var/cache/nginx
-            - name: nginx-run
-              mountPath: /var/run
+            readOnlyRootFilesystem: false
+            runAsNonRoot: false
           livenessProbe:
             httpGet:
-              path: /health
-              port: 8080
+              path: /
+              port: 80
             initialDelaySeconds: 5
             periodSeconds: 15
           readinessProbe:
             httpGet:
-              path: /health
-              port: 8080
+              path: /
+              port: 80
             initialDelaySeconds: 3
             periodSeconds: 10
-      volumes:
-        - name: tmp
-          emptyDir: {}
-        - name: nginx-cache
-          emptyDir: {}
-        - name: nginx-run
-          emptyDir: {}
