@@ -78,7 +78,7 @@ spec:
         - name: pg-tls
           secret:
             secretName: postgresql-tls
-            defaultMode: 0600
+            defaultMode: 0640
   volumeClaimTemplates:
     - metadata:
         name: postgres-data
