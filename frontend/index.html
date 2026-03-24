@@ -3,206 +3,675 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dev Portal</title>
-  <link rel="stylesheet" href="style.css?v=1.0.0" />
+  <title>Dev Portal — The Developer Portal That Sets Up in Minutes</title>
+  <meta name="description" content="Service catalog, health monitoring, API docs, and dependency maps — powered by AI. The Backstage alternative that's batteries-included and fully hosted." />
+  <link rel="stylesheet" href="style.css?v=1.0.1" />
 </head>
-<body>
+<body class="landing-body">
 
-  <!-- ======= TOP NAV ======= -->
-  <header class="topnav">
-    <div class="topnav-brand">
-      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <rect width="28" height="28" rx="6" fill="#6366f1"/>
-        <path d="M7 14l5 5 9-9" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      <span class="brand-name">Dev Portal</span>
-    </div>
-    <nav class="topnav-links">
-      <a href="#" class="nav-link active">Services</a>
-    </nav>
-    <div class="topnav-actions">
-      <span class="refresh-indicator" id="refreshIndicator" title="Auto-refresh every 30s"></span>
-      <button class="btn btn-primary" id="addServiceBtn">+ Add Service</button>
+  <!-- ======= LANDING NAV ======= -->
+  <header class="landing-nav" id="landingNav">
+    <div class="landing-nav-inner">
+      <a href="/" class="landing-nav-brand" aria-label="Dev Portal home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect width="28" height="28" rx="6" fill="#6366f1"/>
+          <path d="M7 14l5 5 9-9" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="landing-brand-name">Dev Portal</span>
+      </a>
+
+      <nav class="landing-nav-links" id="landingNavLinks" aria-label="Main navigation">
+        <a href="#features" class="landing-nav-link">Features</a>
+        <a href="#how-it-works" class="landing-nav-link">How It Works</a>
+        <a href="#pricing" class="landing-nav-link">Pricing</a>
+      </nav>
+
+      <div class="landing-nav-actions">
+        <a href="/catalog" class="landing-btn landing-btn-ghost">Sign In</a>
+        <a href="/catalog" class="landing-btn landing-btn-primary">Get Started</a>
+      </div>
+
+      <button class="landing-nav-hamburger" id="navHamburger" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </header>
 
-  <!-- ======= MAIN LAYOUT ======= -->
-  <main class="main-layout">
+  <!-- ======= HERO ======= -->
+  <section class="landing-hero">
+    <div class="landing-hero-bg" aria-hidden="true">
+      <div class="landing-hero-orb landing-hero-orb-1"></div>
+      <div class="landing-hero-orb landing-hero-orb-2"></div>
+      <div class="landing-hero-orb landing-hero-orb-3"></div>
+    </div>
 
-    <!-- SIDEBAR FILTERS -->
-    <aside class="sidebar">
-      <div class="sidebar-section">
-        <h3 class="sidebar-heading">Status</h3>
-        <div class="filter-group" id="statusFilters">
-          <button class="filter-chip active" data-filter-type="status" data-value="">All</button>
-          <button class="filter-chip" data-filter-type="status" data-value="healthy">
-            <span class="dot dot-healthy"></span> Healthy
-          </button>
-          <button class="filter-chip" data-filter-type="status" data-value="degraded">
-            <span class="dot dot-degraded"></span> Degraded
-          </button>
-          <button class="filter-chip" data-filter-type="status" data-value="down">
-            <span class="dot dot-down"></span> Down
-          </button>
-          <button class="filter-chip" data-filter-type="status" data-value="unknown">
-            <span class="dot dot-unknown"></span> Unknown
-          </button>
-        </div>
+    <div class="landing-container landing-hero-content">
+      <div class="landing-hero-badge">
+        <span class="landing-badge-dot"></span>
+        <span>AI-native service catalog — now in beta</span>
       </div>
 
-      <div class="sidebar-section">
-        <h3 class="sidebar-heading">Teams</h3>
-        <div class="filter-group" id="teamFilters">
-          <button class="filter-chip active" data-filter-type="team" data-value="">All Teams</button>
-          <!-- populated by JS -->
-        </div>
-      </div>
+      <h1 class="landing-hero-heading">
+        Your services.<br />
+        One place.<br />
+        <span class="landing-heading-gradient">Zero complexity.</span>
+      </h1>
 
-      <div class="sidebar-section">
-        <h3 class="sidebar-heading">Tags</h3>
-        <div class="filter-group" id="tagFilters">
-          <!-- populated by JS -->
-        </div>
-      </div>
+      <p class="landing-hero-subtext">
+        The developer portal that sets up in minutes, not months. Service catalog, health monitoring,
+        API docs, and dependency maps — powered by AI. No Backstage PhD required.
+      </p>
 
-      <div class="sidebar-stats" id="sidebarStats">
-        <div class="stat-row"><span class="stat-label">Total</span><span class="stat-value" id="statTotal">—</span></div>
-        <div class="stat-row"><span class="stat-label">Healthy</span><span class="stat-value healthy-text" id="statHealthy">—</span></div>
-        <div class="stat-row"><span class="stat-label">Degraded</span><span class="stat-value degraded-text" id="statDegraded">—</span></div>
-        <div class="stat-row"><span class="stat-label">Down</span><span class="stat-value down-text" id="statDown">—</span></div>
-      </div>
-    </aside>
-
-    <!-- CONTENT AREA -->
-    <div class="content-area">
-      <div class="content-header">
-        <div class="search-wrapper">
-          <svg class="search-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <circle cx="6.5" cy="6.5" r="4.5" stroke="#9ca3af" stroke-width="1.5"/>
-            <path d="M10.5 10.5l3 3" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round"/>
+      <div class="landing-hero-ctas">
+        <a href="/catalog" class="landing-btn landing-btn-primary landing-btn-lg">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <path d="M9 2v14M2 9h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
           </svg>
-          <input type="text" id="searchInput" class="search-input" placeholder="Search services, teams, descriptions…" />
+          Get Started Free
+        </a>
+        <a href="#features" class="landing-btn landing-btn-ghost landing-btn-lg">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M7 9l4-3v6L7 9z" fill="currentColor"/>
+          </svg>
+          View Demo
+        </a>
+      </div>
+
+      <!-- MOCKUP BROWSER WINDOW -->
+      <div class="landing-mockup-wrap">
+        <div class="landing-mockup-glow" aria-hidden="true"></div>
+        <div class="landing-browser">
+          <div class="landing-browser-chrome">
+            <div class="landing-browser-dots" aria-hidden="true">
+              <span class="browser-dot browser-dot-red"></span>
+              <span class="browser-dot browser-dot-amber"></span>
+              <span class="browser-dot browser-dot-green"></span>
+            </div>
+            <div class="landing-browser-url">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                <path d="M6 1a5 5 0 100 10A5 5 0 006 1zM1 6h10M6 1c-1.5 2-2.5 3.2-2.5 5s1 3 2.5 5M6 1c1.5 2 2.5 3.2 2.5 5S7.5 14 6 11" stroke="#64748b" stroke-width="1" stroke-linecap="round"/>
+              </svg>
+              dev-portal.example.com/catalog
+            </div>
+          </div>
+          <div class="landing-browser-body">
+            <!-- Fake topnav -->
+            <div class="mock-topnav">
+              <div class="mock-topnav-brand">
+                <span class="mock-logo-sq"></span>
+                <span class="mock-brand-label">Dev Portal</span>
+              </div>
+              <div class="mock-topnav-right">
+                <span class="mock-refresh-dot"></span>
+                <span class="mock-btn-sm">+ Add Service</span>
+              </div>
+            </div>
+            <!-- Fake layout -->
+            <div class="mock-layout">
+              <!-- Fake sidebar -->
+              <div class="mock-sidebar">
+                <div class="mock-sidebar-heading">STATUS</div>
+                <div class="mock-filter mock-filter-active">All</div>
+                <div class="mock-filter"><span class="mock-dot mock-dot-green"></span> Healthy</div>
+                <div class="mock-filter"><span class="mock-dot mock-dot-amber"></span> Degraded</div>
+                <div class="mock-filter"><span class="mock-dot mock-dot-red"></span> Down</div>
+                <div class="mock-sidebar-heading" style="margin-top:12px;">TEAMS</div>
+                <div class="mock-filter mock-filter-active">All Teams</div>
+                <div class="mock-filter">Platform</div>
+                <div class="mock-filter">Backend</div>
+                <div class="mock-stats">
+                  <div class="mock-stat-row"><span>Total</span><span class="mock-stat-val">14</span></div>
+                  <div class="mock-stat-row"><span>Healthy</span><span class="mock-stat-val mock-stat-green">11</span></div>
+                  <div class="mock-stat-row"><span>Degraded</span><span class="mock-stat-val mock-stat-amber">2</span></div>
+                  <div class="mock-stat-row"><span>Down</span><span class="mock-stat-val mock-stat-red">1</span></div>
+                </div>
+              </div>
+              <!-- Fake cards area -->
+              <div class="mock-content">
+                <div class="mock-search-bar"></div>
+                <div class="mock-cards-grid">
+
+                  <div class="mock-card">
+                    <div class="mock-card-header">
+                      <div>
+                        <div class="mock-card-name">api-gateway</div>
+                        <div class="mock-card-team">Platform</div>
+                      </div>
+                      <span class="mock-badge mock-badge-healthy">Healthy</span>
+                    </div>
+                    <div class="mock-card-desc">Routes external traffic to internal services. Handles auth, rate limiting.</div>
+                    <div class="mock-card-tags">
+                      <span class="mock-tag">api</span>
+                      <span class="mock-tag">critical</span>
+                      <span class="mock-tag">go</span>
+                    </div>
+                    <div class="mock-card-links">
+                      <span class="mock-link-btn">Docs</span>
+                      <span class="mock-link-btn">GitHub</span>
+                      <span class="mock-link-btn">Dashboard</span>
+                    </div>
+                  </div>
+
+                  <div class="mock-card">
+                    <div class="mock-card-header">
+                      <div>
+                        <div class="mock-card-name">user-service</div>
+                        <div class="mock-card-team">Backend</div>
+                      </div>
+                      <span class="mock-badge mock-badge-healthy">Healthy</span>
+                    </div>
+                    <div class="mock-card-desc">User accounts, profiles, and authentication tokens.</div>
+                    <div class="mock-card-tags">
+                      <span class="mock-tag">python</span>
+                      <span class="mock-tag">postgres</span>
+                    </div>
+                    <div class="mock-card-links">
+                      <span class="mock-link-btn">Docs</span>
+                      <span class="mock-link-btn">GitHub</span>
+                    </div>
+                  </div>
+
+                  <div class="mock-card">
+                    <div class="mock-card-header">
+                      <div>
+                        <div class="mock-card-name">payment-svc</div>
+                        <div class="mock-card-team">Payments</div>
+                      </div>
+                      <span class="mock-badge mock-badge-degraded">Degraded</span>
+                    </div>
+                    <div class="mock-card-desc">Stripe integration, subscription billing, invoice generation.</div>
+                    <div class="mock-card-tags">
+                      <span class="mock-tag">billing</span>
+                      <span class="mock-tag">critical</span>
+                    </div>
+                    <div class="mock-card-links">
+                      <span class="mock-link-btn">Docs</span>
+                      <span class="mock-link-btn">Dashboard</span>
+                    </div>
+                  </div>
+
+                  <div class="mock-card">
+                    <div class="mock-card-header">
+                      <div>
+                        <div class="mock-card-name">notification-svc</div>
+                        <div class="mock-card-team">Platform</div>
+                      </div>
+                      <span class="mock-badge mock-badge-healthy">Healthy</span>
+                    </div>
+                    <div class="mock-card-desc">Email, SMS, push notifications. Handles delivery retries.</div>
+                    <div class="mock-card-tags">
+                      <span class="mock-tag">async</span>
+                      <span class="mock-tag">kafka</span>
+                    </div>
+                    <div class="mock-card-links">
+                      <span class="mock-link-btn">GitHub</span>
+                    </div>
+                  </div>
+
+                  <div class="mock-card">
+                    <div class="mock-card-header">
+                      <div>
+                        <div class="mock-card-name">search-service</div>
+                        <div class="mock-card-team">Backend</div>
+                      </div>
+                      <span class="mock-badge mock-badge-healthy">Healthy</span>
+                    </div>
+                    <div class="mock-card-desc">Elasticsearch-backed full-text search with semantic ranking.</div>
+                    <div class="mock-card-tags">
+                      <span class="mock-tag">search</span>
+                      <span class="mock-tag">typescript</span>
+                    </div>
+                    <div class="mock-card-links">
+                      <span class="mock-link-btn">Docs</span>
+                    </div>
+                  </div>
+
+                  <div class="mock-card">
+                    <div class="mock-card-header">
+                      <div>
+                        <div class="mock-card-name">ml-pipeline</div>
+                        <div class="mock-card-team">ML</div>
+                      </div>
+                      <span class="mock-badge mock-badge-down">Down</span>
+                    </div>
+                    <div class="mock-card-desc">Model training, feature store, and inference endpoints.</div>
+                    <div class="mock-card-tags">
+                      <span class="mock-tag">ml</span>
+                      <span class="mock-tag">python</span>
+                      <span class="mock-tag">gpu</span>
+                    </div>
+                    <div class="mock-card-links">
+                      <span class="mock-link-btn">Dashboard</span>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="view-meta" id="viewMeta">Loading…</div>
-      </div>
-
-      <!-- CARDS GRID -->
-      <div class="cards-grid" id="cardsGrid">
-        <!-- skeleton while loading -->
-        <div class="card-skeleton"></div>
-        <div class="card-skeleton"></div>
-        <div class="card-skeleton"></div>
-        <div class="card-skeleton"></div>
-        <div class="card-skeleton"></div>
-        <div class="card-skeleton"></div>
-      </div>
-
-      <!-- EMPTY STATE -->
-      <div class="empty-state hidden" id="emptyState">
-        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-          <rect width="48" height="48" rx="12" fill="#1e293b"/>
-          <path d="M16 32l8-16 8 16" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <circle cx="24" cy="20" r="2" fill="#475569"/>
-        </svg>
-        <h3>No services found</h3>
-        <p id="emptyStateMsg">Try adjusting your search or filters.</p>
-        <button class="btn btn-primary" id="emptyAddBtn">Add your first service</button>
       </div>
     </div>
-  </main>
+  </section>
 
-  <!-- ======= ADD / EDIT SERVICE MODAL ======= -->
-  <div class="modal-overlay hidden" id="serviceModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <div class="modal">
-      <div class="modal-header">
-        <h2 class="modal-title" id="modalTitle">Add Service</h2>
-        <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
-      </div>
-      <form class="modal-form" id="serviceForm" novalidate>
-        <input type="hidden" id="formServiceId" />
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="formName">Name <span class="required">*</span></label>
-            <input type="text" id="formName" name="name" required placeholder="my-service" />
-          </div>
-          <div class="form-group">
-            <label for="formTeam">Team</label>
-            <input type="text" id="formTeam" name="team" placeholder="Platform" />
-          </div>
+  <!-- ======= STATS BAR ======= -->
+  <section class="landing-stats-bar">
+    <div class="landing-container">
+      <p class="landing-stats-label">Trusted by platform teams everywhere</p>
+      <div class="landing-stats-grid">
+        <div class="landing-stat">
+          <span class="landing-stat-value">14+</span>
+          <span class="landing-stat-desc">services per team on average</span>
         </div>
-
-        <div class="form-group">
-          <label for="formDescription">Description</label>
-          <textarea id="formDescription" name="description" rows="2" placeholder="What does this service do?"></textarea>
+        <div class="landing-stat-divider" aria-hidden="true"></div>
+        <div class="landing-stat">
+          <span class="landing-stat-value">99.9%</span>
+          <span class="landing-stat-desc">uptime tracked across all services</span>
         </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="formStatus">Status</label>
-            <select id="formStatus" name="status">
-              <option value="unknown">Unknown</option>
-              <option value="healthy">Healthy</option>
-              <option value="degraded">Degraded</option>
-              <option value="down">Down</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="formTags">Tags <span class="hint">(comma-separated)</span></label>
-            <input type="text" id="formTags" name="tags" placeholder="api, critical, python" />
-          </div>
+        <div class="landing-stat-divider" aria-hidden="true"></div>
+        <div class="landing-stat">
+          <span class="landing-stat-value">&lt;5 min</span>
+          <span class="landing-stat-desc">to full catalog setup</span>
         </div>
-
-        <div class="form-group">
-          <label for="formStatusUrl">Health Check URL</label>
-          <input type="url" id="formStatusUrl" name="status_url" placeholder="https://my-service/health" />
+        <div class="landing-stat-divider" aria-hidden="true"></div>
+        <div class="landing-stat">
+          <span class="landing-stat-value">Zero</span>
+          <span class="landing-stat-desc">maintenance burden</span>
         </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="formDocsUrl">Docs URL</label>
-            <input type="url" id="formDocsUrl" name="docs_url" placeholder="https://docs.example.com/my-service" />
-          </div>
-          <div class="form-group">
-            <label for="formGithubUrl">GitHub URL</label>
-            <input type="url" id="formGithubUrl" name="github_url" placeholder="https://github.com/org/my-service" />
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="formDashboardUrl">Dashboard URL</label>
-          <input type="url" id="formDashboardUrl" name="dashboard_url" placeholder="https://grafana.example.com/d/..." />
-        </div>
-
-        <div class="modal-footer">
-          <button type="button" class="btn btn-ghost" id="modalCancel">Cancel</button>
-          <button type="button" class="btn btn-danger hidden" id="deleteServiceBtn">Delete</button>
-          <button type="submit" class="btn btn-primary" id="saveServiceBtn">Save</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- ======= CONFIRM MODAL ======= -->
-  <div class="modal-overlay hidden" id="confirmModal" role="dialog" aria-modal="true">
-    <div class="modal modal-sm">
-      <div class="modal-header">
-        <h2 class="modal-title">Confirm Delete</h2>
-        <button class="modal-close" id="confirmClose">&times;</button>
-      </div>
-      <div class="modal-body">
-        <p id="confirmMsg">Are you sure you want to delete this service?</p>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-ghost" id="confirmCancel">Cancel</button>
-        <button class="btn btn-danger" id="confirmOk">Delete</button>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- ======= TOAST ======= -->
-  <div class="toast-container" id="toastContainer"></div>
+  <!-- ======= FEATURES ======= -->
+  <section class="landing-section" id="features">
+    <div class="landing-container">
+      <div class="landing-section-header reveal">
+        <span class="landing-section-eyebrow">Features</span>
+        <h2 class="landing-section-heading">Everything your team needs.<br />Nothing you don't.</h2>
+        <p class="landing-section-subtext">Built for platform engineers who want results, not configuration files.</p>
+      </div>
 
-  <script src="app.js?v=1.0.0"></script>
+      <div class="landing-features-grid">
+
+        <div class="landing-feature-card reveal">
+          <div class="landing-feature-icon landing-icon-indigo">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+              <rect x="2" y="2" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1.7"/>
+              <rect x="12" y="2" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1.7"/>
+              <rect x="2" y="12" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1.7"/>
+              <rect x="12" y="12" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1.7"/>
+            </svg>
+          </div>
+          <h3 class="landing-feature-title">Service Catalog</h3>
+          <p class="landing-feature-desc">Single source of truth for every service, API, and resource. Track ownership, lifecycle, and dependencies in one place.</p>
+        </div>
+
+        <div class="landing-feature-card reveal">
+          <div class="landing-feature-icon landing-icon-green">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+              <circle cx="11" cy="11" r="9" stroke="currentColor" stroke-width="1.7"/>
+              <path d="M11 6v5l3 3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h3 class="landing-feature-title">Health Monitoring</h3>
+          <p class="landing-feature-desc">Real-time health checks across all your services. Instant status updates with smart alerting when things go wrong.</p>
+        </div>
+
+        <div class="landing-feature-card reveal">
+          <div class="landing-feature-icon landing-icon-violet">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+              <path d="M11 2l2.5 5.5L19 9l-4 4 .9 5.5L11 16l-4.9 2.5.9-5.5L3 9l5.5-1.5L11 2z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h3 class="landing-feature-title">AI Auto-Discovery</h3>
+          <p class="landing-feature-desc">Automatically discover services from Kubernetes clusters and cloud providers. No manual registration or YAML wrangling.</p>
+        </div>
+
+        <div class="landing-feature-card reveal">
+          <div class="landing-feature-icon landing-icon-cyan">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+              <path d="M4 6h14M4 10h10M4 14h12M4 18h8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+              <rect x="13" y="12" width="6" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+          </div>
+          <h3 class="landing-feature-title">API Documentation</h3>
+          <p class="landing-feature-desc">Aggregate OpenAPI specs, GraphQL schemas, and gRPC definitions automatically. Always up-to-date, never stale.</p>
+        </div>
+
+        <div class="landing-feature-card reveal">
+          <div class="landing-feature-icon landing-icon-amber">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+              <circle cx="5" cy="11" r="2.5" stroke="currentColor" stroke-width="1.7"/>
+              <circle cx="17" cy="5" r="2.5" stroke="currentColor" stroke-width="1.7"/>
+              <circle cx="17" cy="17" r="2.5" stroke="currentColor" stroke-width="1.7"/>
+              <path d="M7.5 11h3M13 6.5l-3 3M13 15.5l-3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h3 class="landing-feature-title">Dependency Maps</h3>
+          <p class="landing-feature-desc">Visualize service relationships and blast radius. Understand exactly what breaks before you deploy a single line of code.</p>
+        </div>
+
+        <div class="landing-feature-card reveal">
+          <div class="landing-feature-icon landing-icon-rose">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+              <path d="M11 3l1.8 5.5H18l-4.6 3.3 1.7 5.4L11 14l-4.1 3.2 1.7-5.4L4 8.5h5.2L11 3z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h3 class="landing-feature-title">Scorecards</h3>
+          <p class="landing-feature-desc">Production readiness checks built in. Track documentation coverage, test quality, and security compliance across all services.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= HOW IT WORKS ======= -->
+  <section class="landing-section landing-section-alt" id="how-it-works">
+    <div class="landing-container">
+      <div class="landing-section-header reveal">
+        <span class="landing-section-eyebrow">How It Works</span>
+        <h2 class="landing-section-heading">Up and running in three steps.</h2>
+        <p class="landing-section-subtext">No Helm charts to wrestle. No plugins to configure. No consultants required.</p>
+      </div>
+
+      <div class="landing-steps">
+
+        <div class="landing-step reveal">
+          <div class="landing-step-number">01</div>
+          <div class="landing-step-content">
+            <div class="landing-step-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="currentColor" stroke-width="1.7"/>
+                <circle cx="12" cy="9" r="2.5" stroke="currentColor" stroke-width="1.7"/>
+              </svg>
+            </div>
+            <h3 class="landing-step-title">Connect</h3>
+            <p class="landing-step-desc">Point Dev Portal at your Kubernetes cluster or cloud account. Our AI scans your infrastructure and discovers services automatically — no agents, no sidecars.</p>
+          </div>
+        </div>
+
+        <div class="landing-step-connector" aria-hidden="true">
+          <svg width="2" height="48" viewBox="0 0 2 48" fill="none">
+            <line x1="1" y1="0" x2="1" y2="48" stroke="#334155" stroke-width="2" stroke-dasharray="4 4"/>
+          </svg>
+        </div>
+
+        <div class="landing-step reveal">
+          <div class="landing-step-number">02</div>
+          <div class="landing-step-content">
+            <div class="landing-step-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 3l2 6h6l-5 4 2 6-5-4-5 4 2-6-5-4h6l2-6z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <h3 class="landing-step-title">Enrich</h3>
+            <p class="landing-step-desc">AI generates missing documentation, identifies ownership gaps, and maps service dependencies. Your catalog goes from zero to complete without anyone writing a YAML file.</p>
+          </div>
+        </div>
+
+        <div class="landing-step-connector" aria-hidden="true">
+          <svg width="2" height="48" viewBox="0 0 48" fill="none">
+            <line x1="1" y1="0" x2="1" y2="48" stroke="#334155" stroke-width="2" stroke-dasharray="4 4"/>
+          </svg>
+        </div>
+
+        <div class="landing-step reveal">
+          <div class="landing-step-number">03</div>
+          <div class="landing-step-content">
+            <div class="landing-step-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="3" y="3" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1.7"/>
+                <rect x="13" y="3" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1.7"/>
+                <rect x="3" y="13" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1.7"/>
+                <path d="M13 17h8M17 13v8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <h3 class="landing-step-title">Operate</h3>
+            <p class="landing-step-desc">Your entire team gets a single pane of glass for every service. Search, monitor, and manage — all from one place. Natural language search included.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= COMPARISON ======= -->
+  <section class="landing-section" id="comparison">
+    <div class="landing-container landing-container-narrow">
+      <div class="landing-section-header reveal">
+        <span class="landing-section-eyebrow">Comparison</span>
+        <h2 class="landing-section-heading">Why Dev Portal over Backstage?</h2>
+        <p class="landing-section-subtext">Backstage is powerful. It's also a full-time job to maintain. We built the thing you actually wanted.</p>
+      </div>
+
+      <div class="landing-comparison-table reveal">
+        <div class="landing-comparison-header">
+          <div class="landing-comp-col-label">Feature</div>
+          <div class="landing-comp-col landing-comp-col-backstage">
+            <span class="landing-comp-product-label">Backstage</span>
+          </div>
+          <div class="landing-comp-col landing-comp-col-devportal">
+            <span class="landing-comp-product-label landing-comp-ours">
+              <svg width="14" height="14" viewBox="0 0 28 28" fill="none" style="flex-shrink:0" aria-hidden="true">
+                <rect width="28" height="28" rx="6" fill="#6366f1"/>
+                <path d="M7 14l5 5 9-9" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Dev Portal
+            </span>
+          </div>
+        </div>
+
+        <div class="landing-comparison-row">
+          <div class="landing-comp-feature">Setup time</div>
+          <div class="landing-comp-cell landing-comp-cell-bad">
+            <span class="landing-comp-icon landing-comp-x" aria-label="No">✕</span> Weeks
+          </div>
+          <div class="landing-comp-cell landing-comp-cell-good">
+            <span class="landing-comp-icon landing-comp-check" aria-label="Yes">✓</span> Minutes
+          </div>
+        </div>
+
+        <div class="landing-comparison-row landing-comparison-row-alt">
+          <div class="landing-comp-feature">Maintenance burden</div>
+          <div class="landing-comp-cell landing-comp-cell-bad">
+            <span class="landing-comp-icon landing-comp-x" aria-label="No">✕</span> Self-hosted, complex
+          </div>
+          <div class="landing-comp-cell landing-comp-cell-good">
+            <span class="landing-comp-icon landing-comp-check" aria-label="Yes">✓</span> Fully managed
+          </div>
+        </div>
+
+        <div class="landing-comparison-row">
+          <div class="landing-comp-feature">AI features</div>
+          <div class="landing-comp-cell landing-comp-cell-bad">
+            <span class="landing-comp-icon landing-comp-x" aria-label="No">✕</span> None built-in
+          </div>
+          <div class="landing-comp-cell landing-comp-cell-good">
+            <span class="landing-comp-icon landing-comp-check" aria-label="Yes">✓</span> Native AI core
+          </div>
+        </div>
+
+        <div class="landing-comparison-row landing-comparison-row-alt">
+          <div class="landing-comp-feature">Time to first value</div>
+          <div class="landing-comp-cell landing-comp-cell-bad">
+            <span class="landing-comp-icon landing-comp-x" aria-label="No">✕</span> Months
+          </div>
+          <div class="landing-comp-cell landing-comp-cell-good">
+            <span class="landing-comp-icon landing-comp-check" aria-label="Yes">✓</span> Same day
+          </div>
+        </div>
+
+        <div class="landing-comparison-row">
+          <div class="landing-comp-feature">Plugin ecosystem</div>
+          <div class="landing-comp-cell landing-comp-cell-neutral">
+            <span class="landing-comp-icon landing-comp-neutral" aria-label="Partial">~</span> 200+ (complex)
+          </div>
+          <div class="landing-comp-cell landing-comp-cell-good">
+            <span class="landing-comp-icon landing-comp-check" aria-label="Yes">✓</span> Batteries-included
+          </div>
+        </div>
+
+        <div class="landing-comparison-row landing-comparison-row-alt">
+          <div class="landing-comp-feature">Learning curve</div>
+          <div class="landing-comp-cell landing-comp-cell-bad">
+            <span class="landing-comp-icon landing-comp-x" aria-label="No">✕</span> Steep
+          </div>
+          <div class="landing-comp-cell landing-comp-cell-good">
+            <span class="landing-comp-icon landing-comp-check" aria-label="Yes">✓</span> Minimal
+          </div>
+        </div>
+
+        <div class="landing-comparison-row">
+          <div class="landing-comp-feature">Auto-discovery</div>
+          <div class="landing-comp-cell landing-comp-cell-bad">
+            <span class="landing-comp-icon landing-comp-x" aria-label="No">✕</span> Manual registration
+          </div>
+          <div class="landing-comp-cell landing-comp-cell-good">
+            <span class="landing-comp-icon landing-comp-check" aria-label="Yes">✓</span> AI-powered
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= PRICING ======= -->
+  <section class="landing-section landing-section-alt" id="pricing">
+    <div class="landing-container">
+      <div class="landing-section-header reveal">
+        <span class="landing-section-eyebrow">Pricing</span>
+        <h2 class="landing-section-heading">Simple, transparent pricing.</h2>
+        <p class="landing-section-subtext">Start free. Scale when you need to. No surprise bills.</p>
+      </div>
+
+      <div class="landing-pricing-grid">
+
+        <div class="landing-pricing-card reveal">
+          <div class="landing-pricing-tier">Starter</div>
+          <div class="landing-pricing-price">
+            <span class="landing-price-amount">Free</span>
+            <span class="landing-price-period">forever</span>
+          </div>
+          <p class="landing-pricing-tagline">Perfect for small teams getting started.</p>
+          <ul class="landing-pricing-features">
+            <li><span class="pricing-check" aria-label="Included">✓</span> Up to 10 services</li>
+            <li><span class="pricing-check" aria-label="Included">✓</span> Basic health checks</li>
+            <li><span class="pricing-check" aria-label="Included">✓</span> Service catalog &amp; search</li>
+            <li><span class="pricing-check" aria-label="Included">✓</span> Community support</li>
+            <li><span class="pricing-x" aria-label="Not included">✕</span> AI auto-discovery</li>
+            <li><span class="pricing-x" aria-label="Not included">✕</span> Team management</li>
+          </ul>
+          <a href="/catalog" class="landing-btn landing-btn-ghost landing-btn-full">Get Started Free</a>
+        </div>
+
+        <div class="landing-pricing-card landing-pricing-card-featured reveal">
+          <div class="landing-pricing-popular">Most Popular</div>
+          <div class="landing-pricing-tier">Team</div>
+          <div class="landing-pricing-price">
+            <span class="landing-price-amount">$99</span>
+            <span class="landing-price-period">/ month</span>
+          </div>
+          <p class="landing-pricing-tagline">For growing platform teams.</p>
+          <ul class="landing-pricing-features">
+            <li><span class="pricing-check" aria-label="Included">✓</span> Up to 50 services</li>
+            <li><span class="pricing-check" aria-label="Included">✓</span> AI auto-discovery</li>
+            <li><span class="pricing-check" aria-label="Included">✓</span> All integrations</li>
+            <li><span class="pricing-check" aria-label="Included">✓</span> Dependency maps</li>
+            <li><span class="pricing-check" aria-label="Included">✓</span> Team management</li>
+            <li><span class="pricing-check" aria-label="Included">✓</span> Priority support</li>
+          </ul>
+          <a href="/catalog" class="landing-btn landing-btn-primary landing-btn-full">Start 14-day Trial</a>
+        </div>
+
+        <div class="landing-pricing-card reveal">
+          <div class="landing-pricing-tier">Enterprise</div>
+          <div class="landing-pricing-price">
+            <span class="landing-price-amount">Custom</span>
+            <span class="landing-price-period">contact us</span>
+          </div>
+          <p class="landing-pricing-tagline">For large organizations with advanced needs.</p>
+          <ul class="landing-pricing-features">
+            <li><span class="pricing-check" aria-label="Included">✓</span> Unlimited services</li>
+            <li><span class="pricing-check" aria-label="Included">✓</span> SSO / SAML</li>
+            <li><span class="pricing-check" aria-label="Included">✓</span> Custom scorecards</li>
+            <li><span class="pricing-check" aria-label="Included">✓</span> Audit logs &amp; compliance</li>
+            <li><span class="pricing-check" aria-label="Included">✓</span> Dedicated support &amp; SLA</li>
+            <li><span class="pricing-check" aria-label="Included">✓</span> On-prem option</li>
+          </ul>
+          <a href="mailto:hello@devportal.io" class="landing-btn landing-btn-ghost landing-btn-full">Contact Sales</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= FINAL CTA ======= -->
+  <section class="landing-cta-section">
+    <div class="landing-cta-bg" aria-hidden="true">
+      <div class="landing-cta-orb landing-cta-orb-1"></div>
+      <div class="landing-cta-orb landing-cta-orb-2"></div>
+    </div>
+    <div class="landing-container landing-cta-content reveal">
+      <h2 class="landing-cta-heading">Ready to simplify your developer experience?</h2>
+      <p class="landing-cta-subtext">Get started free — no credit card required. Up and running in under five minutes.</p>
+      <div class="landing-cta-actions">
+        <a href="/catalog" class="landing-btn landing-btn-primary landing-btn-lg">
+          Get Started Free
+        </a>
+        <a href="mailto:hello@devportal.io" class="landing-btn landing-btn-ghost landing-btn-lg">
+          Talk to Us
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= FOOTER ======= -->
+  <footer class="landing-footer">
+    <div class="landing-container">
+      <div class="landing-footer-top">
+        <div class="landing-footer-brand">
+          <a href="/" class="landing-nav-brand" aria-label="Dev Portal home">
+            <svg width="24" height="24" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect width="28" height="28" rx="6" fill="#6366f1"/>
+              <path d="M7 14l5 5 9-9" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="landing-brand-name">Dev Portal</span>
+          </a>
+          <p class="landing-footer-tagline">The developer portal built for platform engineers who want results without the complexity.</p>
+        </div>
+
+        <div class="landing-footer-links">
+          <div class="landing-footer-col">
+            <h4 class="landing-footer-col-title">Product</h4>
+            <a href="#features" class="landing-footer-link">Features</a>
+            <a href="#pricing" class="landing-footer-link">Pricing</a>
+            <a href="#" class="landing-footer-link">Documentation</a>
+            <a href="#" class="landing-footer-link">Changelog</a>
+          </div>
+          <div class="landing-footer-col">
+            <h4 class="landing-footer-col-title">Company</h4>
+            <a href="#" class="landing-footer-link">About</a>
+            <a href="#" class="landing-footer-link">Blog</a>
+            <a href="#" class="landing-footer-link">Careers</a>
+            <a href="#" class="landing-footer-link">Contact</a>
+          </div>
+          <div class="landing-footer-col">
+            <h4 class="landing-footer-col-title">Legal</h4>
+            <a href="#" class="landing-footer-link">Privacy Policy</a>
+            <a href="#" class="landing-footer-link">Terms of Service</a>
+            <a href="#" class="landing-footer-link">Security</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="landing-footer-bottom">
+        <p class="landing-footer-copy">&copy; 2026 Dev Portal. Built for platform engineers.</p>
+        <p class="landing-footer-made">Made with care for teams running microservices at scale.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="landing.js?v=1.0.1"></script>
 </body>
 </html>

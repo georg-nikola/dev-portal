@@ -7,9 +7,11 @@ RUN rm -rf /etc/nginx/conf.d/default.conf /usr/share/nginx/html/*
 
 COPY nginx.conf /etc/nginx/nginx.conf
 
-COPY index.html /usr/share/nginx/html/index.html
-COPY style.css /usr/share/nginx/html/style.css
-COPY app.js /usr/share/nginx/html/app.js
+COPY index.html   /usr/share/nginx/html/index.html
+COPY catalog.html /usr/share/nginx/html/catalog.html
+COPY style.css    /usr/share/nginx/html/style.css
+COPY app.js       /usr/share/nginx/html/app.js
+COPY landing.js   /usr/share/nginx/html/landing.js
 
 RUN echo "OK" > /usr/share/nginx/html/health
 
