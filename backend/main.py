@@ -5,7 +5,6 @@ import logging
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 
-import httpx
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import select
@@ -14,6 +13,7 @@ from config import settings
 from database import engine, Base, AsyncSessionLocal
 from models import Service
 from routers import health, services
+from status_checker import ping_url
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -34,7 +34,7 @@ async def _run_status_checks():
 
             logger.info("Running background status checks for %d services", len(svcs))
             for svc in svcs:
-                new_status = await _ping_url(svc.status_url)
+                new_status = await ping_url(svc.status_url)
                 async with AsyncSessionLocal() as db:
                     obj = await db.get(Service, svc.id)
                     if obj:
@@ -45,17 +45,6 @@ async def _run_status_checks():
             break
         except Exception as exc:
             logger.exception("Error in background status checker: %s", exc)
-
-
-async def _ping_url(url: str) -> str:
-    try:
-        async with httpx.AsyncClient(timeout=settings.status_check_timeout, follow_redirects=True) as client:
-            response = await client.get(url)
-        return "healthy" if response.status_code < 300 else "degraded"
-    except httpx.TimeoutException:
-        return "down"
-    except Exception:
-        return "down"
 
 
 @asynccontextmanager

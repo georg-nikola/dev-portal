@@ -3,7 +3,6 @@ from __future__ import annotations
 import uuid
 from typing import List, Optional
 
-import httpx
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select, or_, func
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,7 +11,7 @@ from datetime import datetime, timezone
 from database import get_db
 from models import Service
 from schemas import ServiceCreate, ServiceRead, ServiceUpdate, ServiceListResponse
-from config import settings
+from status_checker import ping_url
 
 router = APIRouter(prefix="/services", tags=["services"])
 
@@ -122,7 +121,7 @@ async def trigger_status_check(service_id: uuid.UUID, db: AsyncSession = Depends
     if not service.status_url:
         raise HTTPException(status_code=422, detail="Service has no status_url configured")
 
-    new_status = await _ping_url(service.status_url)
+    new_status = await ping_url(service.status_url)
     service.status = new_status
     service.last_checked_at = datetime.now(timezone.utc)
     await db.commit()
@@ -130,15 +129,3 @@ async def trigger_status_check(service_id: uuid.UUID, db: AsyncSession = Depends
     return service
 
 
-async def _ping_url(url: str) -> str:
-    """Ping a URL and return the resulting status string."""
-    try:
-        async with httpx.AsyncClient(timeout=settings.status_check_timeout, follow_redirects=True) as client:
-            response = await client.get(url)
-        if response.status_code < 300:
-            return "healthy"
-        return "degraded"
-    except httpx.TimeoutException:
-        return "down"
-    except Exception:
-        return "down"
