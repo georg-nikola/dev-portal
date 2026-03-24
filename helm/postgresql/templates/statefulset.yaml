@@ -17,6 +17,8 @@ spec:
         app: postgresql-dev-portal
     spec:
       automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 999
       {{- with .Values.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
