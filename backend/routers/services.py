@@ -8,8 +8,9 @@ from sqlalchemy import select, or_, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime, timezone
 
+from auth import get_current_user
 from database import get_db
-from models import Service
+from models import Service, User
 from schemas import ServiceCreate, ServiceRead, ServiceUpdate, ServiceListResponse
 from status_checker import ping_url
 
@@ -23,6 +24,7 @@ async def list_services(
     status: Optional[str] = Query(None),
     tag: Optional[str] = Query(None),
     db: AsyncSession = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
 ):
     stmt = select(Service)
 
@@ -53,7 +55,7 @@ async def list_services(
 
 
 @router.get("/{service_id}", response_model=ServiceRead)
-async def get_service(service_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
+async def get_service(service_id: uuid.UUID, db: AsyncSession = Depends(get_db), _current_user: User = Depends(get_current_user)):
     service = await db.get(Service, service_id)
     if not service:
         raise HTTPException(status_code=404, detail="Service not found")
@@ -61,7 +63,7 @@ async def get_service(service_id: uuid.UUID, db: AsyncSession = Depends(get_db))
 
 
 @router.post("", response_model=ServiceRead, status_code=status.HTTP_201_CREATED)
-async def create_service(payload: ServiceCreate, db: AsyncSession = Depends(get_db)):
+async def create_service(payload: ServiceCreate, db: AsyncSession = Depends(get_db), _current_user: User = Depends(get_current_user)):
     # Check uniqueness
     existing = await db.execute(select(Service).where(Service.name == payload.name))
     if existing.scalar_one_or_none():
@@ -76,7 +78,7 @@ async def create_service(payload: ServiceCreate, db: AsyncSession = Depends(get_
 
 @router.put("/{service_id}", response_model=ServiceRead)
 async def update_service(
-    service_id: uuid.UUID, payload: ServiceUpdate, db: AsyncSession = Depends(get_db)
+    service_id: uuid.UUID, payload: ServiceUpdate, db: AsyncSession = Depends(get_db), _current_user: User = Depends(get_current_user),
 ):
     service = await db.get(Service, service_id)
     if not service:
@@ -104,7 +106,7 @@ async def update_service(
 
 
 @router.delete("/{service_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_service(service_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
+async def delete_service(service_id: uuid.UUID, db: AsyncSession = Depends(get_db), _current_user: User = Depends(get_current_user)):
     service = await db.get(Service, service_id)
     if not service:
         raise HTTPException(status_code=404, detail="Service not found")
@@ -113,7 +115,7 @@ async def delete_service(service_id: uuid.UUID, db: AsyncSession = Depends(get_d
 
 
 @router.post("/{service_id}/check", response_model=ServiceRead)
-async def trigger_status_check(service_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
+async def trigger_status_check(service_id: uuid.UUID, db: AsyncSession = Depends(get_db), _current_user: User = Depends(get_current_user)):
     service = await db.get(Service, service_id)
     if not service:
         raise HTTPException(status_code=404, detail="Service not found")

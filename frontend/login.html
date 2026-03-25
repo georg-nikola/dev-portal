@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In — Dev Portal</title>
+  <link rel="stylesheet" href="style.css?v=1.1.0" />
+</head>
+<body>
+
+  <div class="auth-page">
+    <a href="/" class="auth-brand">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect width="28" height="28" rx="6" fill="#6366f1"/>
+        <path d="M7 14l5 5 9-9" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="auth-brand-name">Dev Portal</span>
+    </a>
+
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tabLogin">Sign In</button>
+        <button class="auth-tab" id="tabRegister">Register</button>
+      </div>
+
+      <!-- Sign In Form -->
+      <form class="auth-form" id="loginForm">
+        <div class="auth-error" id="loginError"></div>
+        <div class="form-group">
+          <label for="loginUsername">Username</label>
+          <input type="text" id="loginUsername" required autocomplete="username" placeholder="your-username" />
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" required autocomplete="current-password" placeholder="********" />
+        </div>
+        <button type="submit" class="btn btn-primary" id="loginBtn">Sign In</button>
+      </form>
+
+      <!-- Register Form -->
+      <form class="auth-form" id="registerForm" style="display:none">
+        <div class="auth-error" id="registerError"></div>
+        <div class="form-group">
+          <label for="regUsername">Username</label>
+          <input type="text" id="regUsername" required autocomplete="username" placeholder="your-username" minlength="3" />
+        </div>
+        <div class="form-group">
+          <label for="regEmail">Email <span class="hint">(optional)</span></label>
+          <input type="email" id="regEmail" autocomplete="email" placeholder="you@example.com" />
+        </div>
+        <div class="form-group">
+          <label for="regPassword">Password</label>
+          <input type="password" id="regPassword" required autocomplete="new-password" placeholder="min 8 characters" minlength="8" />
+        </div>
+        <div class="form-group">
+          <label for="regConfirm">Confirm Password</label>
+          <input type="password" id="regConfirm" required autocomplete="new-password" placeholder="********" minlength="8" />
+        </div>
+        <button type="submit" class="btn btn-primary" id="registerBtn">Create Account</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="auth.js?v=1.1.0"></script>
+  <script>
+  (function () {
+    'use strict';
+
+    // Redirect if already logged in
+    if (isLoggedIn()) {
+      window.location.href = '/catalog';
+      return;
+    }
+
+    var tabLogin    = document.getElementById('tabLogin');
+    var tabRegister = document.getElementById('tabRegister');
+    var loginForm   = document.getElementById('loginForm');
+    var registerForm = document.getElementById('registerForm');
+
+    function showTab(tab) {
+      var isLogin = tab === 'login';
+      tabLogin.classList.toggle('active', isLogin);
+      tabRegister.classList.toggle('active', !isLogin);
+      loginForm.style.display = isLogin ? '' : 'none';
+      registerForm.style.display = isLogin ? 'none' : '';
+    }
+
+    tabLogin.addEventListener('click', function () { showTab('login'); });
+    tabRegister.addEventListener('click', function () { showTab('register'); });
+
+    function showError(id, msg) {
+      var el = document.getElementById(id);
+      el.textContent = msg;
+      el.classList.add('visible');
+    }
+
+    function clearErrors() {
+      document.querySelectorAll('.auth-error').forEach(function (el) {
+        el.classList.remove('visible');
+        el.textContent = '';
+      });
+    }
+
+    async function apiPost(path, body) {
+      var res = await fetch('/api' + path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      var data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.detail || 'Request failed');
+      }
+      return data;
+    }
+
+    loginForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      clearErrors();
+      var btn = document.getElementById('loginBtn');
+      btn.disabled = true;
+      btn.textContent = 'Signing in\u2026';
+      try {
+        var data = await apiPost('/auth/login', {
+          username: document.getElementById('loginUsername').value.trim(),
+          password: document.getElementById('loginPassword').value,
+        });
+        saveAuth(data.token, data.username);
+        window.location.href = '/catalog';
+      } catch (err) {
+        showError('loginError', err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Sign In';
+      }
+    });
+
+    registerForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      clearErrors();
+
+      var password = document.getElementById('regPassword').value;
+      var confirm  = document.getElementById('regConfirm').value;
+      if (password !== confirm) {
+        showError('registerError', 'Passwords do not match');
+        return;
+      }
+
+      var btn = document.getElementById('registerBtn');
+      btn.disabled = true;
+      btn.textContent = 'Creating account\u2026';
+      try {
+        var data = await apiPost('/auth/register', {
+          username: document.getElementById('regUsername').value.trim(),
+          email:    document.getElementById('regEmail').value.trim() || null,
+          password: password,
+        });
+        saveAuth(data.token, data.username);
+        window.location.href = '/catalog';
+      } catch (err) {
+        showError('registerError', err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Create Account';
+      }
+    });
+  })();
+  </script>
+
+</body>
+</html>

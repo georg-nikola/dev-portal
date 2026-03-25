@@ -12,6 +12,8 @@ COPY catalog.html /usr/share/nginx/html/catalog.html
 COPY style.css    /usr/share/nginx/html/style.css
 COPY app.js       /usr/share/nginx/html/app.js
 COPY landing.js   /usr/share/nginx/html/landing.js
+COPY login.html   /usr/share/nginx/html/login.html
+COPY auth.js      /usr/share/nginx/html/auth.js
 
 RUN echo "OK" > /usr/share/nginx/html/health
 

@@ -18,10 +18,16 @@ let confirmCallback = null;
 // API helpers
 // ============================================================
 async function apiFetch(path, options = {}) {
+  const headers = { 'Content-Type': 'application/json', ...authHeaders() };
   const res = await fetch(`${API_BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     ...options,
   });
+  if (res.status === 401) {
+    clearAuth();
+    window.location.href = '/login';
+    return;
+  }
   if (!res.ok) {
     let msg = `HTTP ${res.status}`;
     try { const body = await res.json(); msg = body.detail || msg; } catch (_) {}
@@ -506,6 +512,12 @@ function wireEvents() {
 // Init
 // ============================================================
 document.addEventListener('DOMContentLoaded', async () => {
+  requireAuth();
+
+  // Show current user in topnav
+  var userEl = document.getElementById('currentUser');
+  if (userEl) userEl.textContent = getUsername() || '';
+
   wireEvents();
   await loadAllServices(false);
   startAutoRefresh();

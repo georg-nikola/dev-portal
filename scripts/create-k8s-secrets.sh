@@ -2,8 +2,8 @@
 # Creates required Kubernetes secrets for the dev-portal namespace.
 #
 # Usage:
-#   POSTGRES_PASSWORD=<password> ./scripts/create-k8s-secrets.sh            # Apply plain secrets
-#   POSTGRES_PASSWORD=<password> ./scripts/create-k8s-secrets.sh --sealed   # Generate SealedSecret YAMLs
+#   POSTGRES_PASSWORD=<password> [JWT_SECRET=<secret>] ./scripts/create-k8s-secrets.sh            # Apply plain secrets
+#   POSTGRES_PASSWORD=<password> [JWT_SECRET=<secret>] ./scripts/create-k8s-secrets.sh --sealed   # Generate SealedSecret YAMLs
 #
 # Sealed Secrets migration path:
 #   1. Deploy sealed-secrets controller to the cluster (see talos-configs ArgoCD app)
@@ -72,6 +72,17 @@ kubectl create secret generic postgresql-tls \
   --from-file=server.key="$CERT_DIR/server.key" \
   --from-file=ca.crt="$CERT_DIR/ca.crt" \
   --dry-run=client -o yaml | apply_or_seal "postgresql-tls"
+
+echo ""
+echo "Creating secret: dev-portal-api-secrets..."
+if [ -z "${JWT_SECRET:-}" ]; then
+  JWT_SECRET=$(openssl rand -hex 32)
+  echo "  Generated random JWT_SECRET (not provided via env)"
+fi
+kubectl create secret generic dev-portal-api-secrets \
+  --namespace=dev-portal \
+  --from-literal=JWT_SECRET="${JWT_SECRET}" \
+  --dry-run=client -o yaml | apply_or_seal "dev-portal-api-secrets"
 
 echo ""
 if [ "$SEALED" = true ]; then

@@ -12,7 +12,7 @@ from sqlalchemy import select
 from config import settings
 from database import engine, Base, AsyncSessionLocal
 from models import Service
-from routers import health, services
+from routers import auth, health, services
 from status_checker import ping_url
 
 logging.basicConfig(level=logging.INFO)
@@ -87,4 +87,5 @@ app.add_middleware(
 )
 
 app.include_router(health.router, prefix="/api")
+app.include_router(auth.router, prefix="/api")
 app.include_router(services.router, prefix="/api")

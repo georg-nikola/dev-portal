@@ -23,6 +23,7 @@ services:
       dockerfile: Dockerfile
     environment:
       DATABASE_URL: "postgresql+asyncpg://devportal:devportal@postgres:5432/devportal"
+      JWT_SECRET: "local-dev-secret-do-not-use-in-production"
     ports:
       - "8000:8000"
     depends_on:
