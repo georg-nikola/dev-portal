@@ -71,6 +71,7 @@ class ServiceUpdate(BaseModel):
 class ServiceRead(ServiceBase):
     id: uuid.UUID
     owner_id: uuid.UUID
+    cluster_id: Optional[uuid.UUID] = None
     last_checked_at: Optional[datetime] = None
     created_at: datetime
     updated_at: Optional[datetime] = None

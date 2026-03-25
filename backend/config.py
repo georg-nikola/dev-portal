@@ -11,11 +11,22 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     jwt_expire_days: int = 7
 
+    encryption_key: str = "change-me-in-production"
+    discovery_interval: int = 300  # seconds between auto-discovery runs
+    discovery_enabled: bool = False
+
     @field_validator("jwt_secret")
     @classmethod
     def jwt_secret_must_not_be_default(cls, v: str) -> str:
         if v == "change-me-in-production":
             raise ValueError("JWT_SECRET must be set — do not use the default placeholder")
+        return v
+
+    @field_validator("encryption_key")
+    @classmethod
+    def encryption_key_must_not_be_default(cls, v: str) -> str:
+        if v == "change-me-in-production":
+            raise ValueError("ENCRYPTION_KEY must be set — do not use the default placeholder")
         return v
 
     class Config:

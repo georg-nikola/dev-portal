@@ -79,9 +79,14 @@ if [ -z "${JWT_SECRET:-}" ]; then
   JWT_SECRET=$(openssl rand -hex 32)
   echo "  Generated random JWT_SECRET (not provided via env)"
 fi
+if [ -z "${ENCRYPTION_KEY:-}" ]; then
+  ENCRYPTION_KEY=$(openssl rand -hex 32)
+  echo "  Generated random ENCRYPTION_KEY (not provided via env)"
+fi
 kubectl create secret generic dev-portal-api-secrets \
   --namespace=dev-portal \
   --from-literal=JWT_SECRET="${JWT_SECRET}" \
+  --from-literal=ENCRYPTION_KEY="${ENCRYPTION_KEY}" \
   --dry-run=client -o yaml | apply_or_seal "dev-portal-api-secrets"
 
 echo ""

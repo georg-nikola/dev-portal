@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clusters — Dev Portal</title>
+  <link rel="stylesheet" href="style.css?v=1.2.0" />
+</head>
+<body>
+
+  <!-- ======= TOP NAV ======= -->
+  <header class="topnav">
+    <div class="topnav-brand">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect width="28" height="28" rx="6" fill="#6366f1"/>
+        <path d="M7 14l5 5 9-9" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="brand-name">Dev Portal</span>
+    </div>
+    <nav class="topnav-links">
+      <a href="/catalog" class="nav-link">Services</a>
+      <a href="/clusters" class="nav-link active">Clusters</a>
+    </nav>
+    <div class="topnav-actions">
+      <button class="btn btn-primary" id="addClusterBtn">+ Add Cluster</button>
+      <div class="topnav-user">
+        <span class="topnav-username" id="currentUser"></span>
+        <button class="btn btn-ghost" onclick="logout()">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ======= MAIN ======= -->
+  <main class="clusters-main">
+    <div class="content-area" style="max-width:960px;margin:0 auto;padding:24px;">
+      <div class="content-header">
+        <h2 style="font-size:18px;font-weight:600;">Kubernetes Clusters</h2>
+        <div class="view-meta" id="viewMeta">Loading...</div>
+      </div>
+
+      <div class="cards-grid" id="clustersGrid">
+        <div class="card-skeleton"></div>
+        <div class="card-skeleton"></div>
+      </div>
+
+      <div class="empty-state hidden" id="emptyState">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+          <rect width="48" height="48" rx="12" fill="#1e293b"/>
+          <circle cx="24" cy="18" r="6" stroke="#475569" stroke-width="2"/>
+          <path d="M12 38c0-6.627 5.373-12 12-12s12 5.373 12 12" stroke="#475569" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <h3>No clusters configured</h3>
+        <p>Add a Kubernetes cluster to discover services automatically.</p>
+        <button class="btn btn-primary" id="emptyAddBtn">Add your first cluster</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- ======= CLUSTER MODAL ======= -->
+  <div class="modal-overlay hidden" id="clusterModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modalTitle">Add Cluster</h2>
+        <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
+      </div>
+      <form class="modal-form" id="clusterForm" novalidate>
+        <input type="hidden" id="formClusterId" />
+
+        <div class="form-group">
+          <label for="formClusterName">Name <span class="required">*</span></label>
+          <input type="text" id="formClusterName" required placeholder="home-cluster" />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="formIsInCluster" />
+              Use in-cluster service account
+            </label>
+            <span class="hint">Enable if dev-portal runs inside this cluster</span>
+          </div>
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="formAutoDiscover" />
+              Auto-discover periodically
+            </label>
+          </div>
+        </div>
+
+        <div id="externalFields">
+          <div class="form-group">
+            <label for="formApiServer">API Server URL <span class="required">*</span></label>
+            <input type="url" id="formApiServer" placeholder="https://192.168.68.106:6443" />
+          </div>
+
+          <div class="form-group">
+            <label for="formToken">Service Account Token</label>
+            <textarea id="formToken" rows="3" placeholder="eyJhbGci..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="formKubeconfig">Kubeconfig YAML <span class="hint">(alternative to token)</span></label>
+            <textarea id="formKubeconfig" rows="3" placeholder="apiVersion: v1&#10;kind: Config&#10;..."></textarea>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="formNamespaceFilter">Namespace Filter <span class="hint">(comma-separated, empty = all)</span></label>
+          <input type="text" id="formNamespaceFilter" placeholder="default, dev-portal, monitoring" />
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" id="modalCancel">Cancel</button>
+          <button type="button" class="btn btn-danger hidden" id="deleteClusterBtn">Delete</button>
+          <button type="submit" class="btn btn-primary" id="saveClusterBtn">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======= TOAST ======= -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="auth.js?v=1.2.0"></script>
+  <script src="clusters.js?v=1.2.0"></script>
+</body>
+</html>
