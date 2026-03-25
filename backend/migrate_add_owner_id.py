@@ -39,10 +39,15 @@ async def migrate():
         result = await conn.execute(text("DELETE FROM services"))
         print(f"  Deleted {result.rowcount} rows.")
 
-        # Drop the old unique constraint on name alone
-        print("Dropping old unique constraint on name...")
+        # Drop the old unique constraint and unique index on name alone
+        print("Dropping old unique constraint/index on name...")
         await conn.execute(text(
             "ALTER TABLE services DROP CONSTRAINT IF EXISTS services_name_key"
+        ))
+        await conn.execute(text("DROP INDEX IF EXISTS ix_services_name"))
+        # Recreate as non-unique index (still useful for lookups)
+        await conn.execute(text(
+            "CREATE INDEX IF NOT EXISTS ix_services_name ON services(name)"
         ))
 
         print("Adding owner_id column...")
