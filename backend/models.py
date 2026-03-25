@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Column, String, Text, Enum, DateTime, JSON
+from sqlalchemy import Column, ForeignKey, String, Text, Enum, DateTime, JSON, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
 
@@ -20,9 +20,13 @@ class User(Base):
 
 class Service(Base):
     __tablename__ = "services"
+    __table_args__ = (
+        UniqueConstraint("owner_id", "name", name="uq_service_owner_name"),
+    )
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    name = Column(String(100), nullable=False, unique=True, index=True)
+    owner_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True)
+    name = Column(String(100), nullable=False, index=True)
     description = Column(Text)
     team = Column(String(100), index=True)
     status = Column(

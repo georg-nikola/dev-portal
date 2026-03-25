@@ -23,7 +23,7 @@ async function apiFetch(path, options = {}) {
     headers,
     ...options,
   });
-  if (res.status === 401) {
+  if (res.status === 401 || res.status === 403) {
     clearAuth();
     window.location.href = '/login';
     return;
@@ -159,7 +159,7 @@ function renderCards(services) {
     const hasFilters = Object.values(activeFilters).some(v => v);
     emptyMsg.textContent = hasFilters
       ? 'No services match your current filters.'
-      : 'No services registered yet.';
+      : 'Your service catalog is empty. Add a service manually or discover from a cluster.';
     document.getElementById('emptyAddBtn').classList.toggle('hidden', hasFilters);
     viewMeta.textContent = '0 services';
     return;
