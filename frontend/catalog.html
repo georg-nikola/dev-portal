@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dev Portal</title>
-  <link rel="stylesheet" href="style.css?v=1.0.1" />
+  <link rel="stylesheet" href="style.css?v=1.1.0" />
 </head>
 <body>
 
@@ -23,6 +23,10 @@
     <div class="topnav-actions">
       <span class="refresh-indicator" id="refreshIndicator" title="Auto-refresh every 30s"></span>
       <button class="btn btn-primary" id="addServiceBtn">+ Add Service</button>
+      <div class="topnav-user">
+        <span class="topnav-username" id="currentUser"></span>
+        <button class="btn btn-ghost" onclick="logout()">Logout</button>
+      </div>
     </div>
   </header>
 
@@ -203,6 +207,7 @@
   <!-- ======= TOAST ======= -->
   <div class="toast-container" id="toastContainer"></div>
 
-  <script src="app.js?v=1.0.1"></script>
+  <script src="auth.js?v=1.1.0"></script>
+  <script src="app.js?v=1.1.0"></script>
 </body>
 </html>
