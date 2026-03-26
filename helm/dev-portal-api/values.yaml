@@ -25,5 +25,10 @@ env:
 
 ingress:
   host: dev-portal.georg-nikola.com
+  middlewares: []
 
 tolerations: []
+
+discovery:
+  enabled: "true"
+  interval: "300"

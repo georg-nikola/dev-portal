@@ -23,11 +23,18 @@ spec:
       kind: Rule
       middlewares:
         - name: dev-portal-auth-ratelimit
+        {{- with .Values.ingress.middlewares }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       services:
         - name: {{ include "dev-portal-api.fullname" . }}
           port: {{ .Values.service.port }}
     - match: Host(`{{ .Values.ingress.host }}`) && PathPrefix(`/api`)
       kind: Rule
+      {{- if .Values.ingress.middlewares }}
+      middlewares:
+        {{- toYaml .Values.ingress.middlewares | nindent 8 }}
+      {{- end }}
       services:
         - name: {{ include "dev-portal-api.fullname" . }}
           port: {{ .Values.service.port }}
