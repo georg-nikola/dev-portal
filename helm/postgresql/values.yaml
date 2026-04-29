@@ -19,3 +19,18 @@ service:
   port: 5432
 
 tolerations: []
+
+# Pod-level security context (e.g. fsGroup for PVC permissions).
+podSecurityContext: {}
+
+# Container-level security context. Set readOnlyRootFilesystem: true to
+# satisfy the verify-image / KSV014 audit policy. When enabled, supply
+# extraVolumes/extraVolumeMounts below for postgres' writable paths
+# (/tmp, /var/run/postgresql).
+containerSecurityContext: {}
+
+# Additional volumes appended to the StatefulSet pod spec.
+extraVolumes: []
+
+# Additional volume mounts appended to the postgres container.
+extraVolumeMounts: []
