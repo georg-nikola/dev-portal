@@ -26,3 +26,16 @@ ingress:
   authentikOutpost: false
 
 tolerations: []
+
+# Container-level security context. Defaults preserve previous behavior; overlays
+# can flip readOnlyRootFilesystem: true and supply matching extraVolumes/Mounts.
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: false
+  runAsNonRoot: false
+
+# Additional volumes appended to the pod spec. Pair with extraVolumeMounts.
+extraVolumes: []
+
+# Additional volume mounts appended to the container.
+extraVolumeMounts: []

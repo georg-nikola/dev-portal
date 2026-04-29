@@ -17,6 +17,10 @@ spec:
         app: postgresql-dev-portal
     spec:
       automountServiceAccountToken: false
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- with .Values.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
@@ -35,6 +39,10 @@ spec:
         - name: postgresql
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- with .Values.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           args:
             - "-c"
             - "ssl=on"
@@ -70,6 +78,9 @@ spec:
             - name: pg-tls-certs
               mountPath: /var/lib/postgresql/certs
               readOnly: true
+            {{- with .Values.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           livenessProbe:
@@ -88,6 +99,9 @@ spec:
             secretName: postgresql-tls
         - name: pg-tls-certs
           emptyDir: {}
+        {{- with .Values.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
   volumeClaimTemplates:
     - metadata:
         name: postgres-data
